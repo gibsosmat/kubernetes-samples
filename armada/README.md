@@ -1,7 +1,9 @@
-# Armada local setup for demo
+# Armada local setup
 ## Pre-requisites
 
-- minimum 4 core cpu & 16GB ram
+**System should have minimum 4 core cpu & 16GB ram**
+
+install following software packages
 - [Go](https://go.dev/doc/install) (version 1.20 or later)
 - gcc (for Windows, see, e.g., [tdm-gcc](https://jmeubank.github.io/tdm-gcc/))
 - [mage](https://magefile.org/)
@@ -24,7 +26,11 @@ cd armada
 mage localdev full
 ```
 
-## Executing 
+## Execution
+following commands will
+- create job queues
+- send jobs/tasks for them to be executed in pods  
+currently this executes an `alpine` linux image and execute `sleep` for 10+ seconds
 
 ```bash
 go run cmd/armadactl/main.go create -f ./docs/quickstart/queue-a.yaml
@@ -35,12 +41,54 @@ go run cmd/armadactl/main.go submit ./docs/quickstart/job-queue-b.yaml
 
 #check logs of armada in another terminal
 docker compose logs -f
-
 ```
-you can also use `./armadactl` with env variables to point to local
+input files 
+```yaml
+# cat ./docs/quickstart/queue-a.yaml 
+apiVersion: armadaproject.io/v1beta1
+kind: Queue
+name: queue-a
+permissions:
+- subjects: 
+  - name: group2
+    kind: Group
+  verbs:
+  - cancel
+  - reprioritize
+  - watch
+priorityFactor: 3.0
+resourceLimits:
+  cpu: 1.0
+  memory: 1.0%
 
-## example output
+# cat ./docs/quickstart/job-queue-a.yaml
+queue: queue-a
+jobSetId: job-set-1
+jobs:
+  - priority: 0
+    podSpec:
+      terminationGracePeriodSeconds: 0
+      restartPolicy: Never
+      containers:
+        - name: sleeper
+          image: alpine:latest
+          command:
+            - sh
+          args:
+            - -c
+            - sleep $(( (RANDOM % 60) + 10 ))
+          resources:
+            limits:
+              memory: 128Mi
+              cpu: 0.2
+            requests:
+              memory: 128Mi
+              cpu: 0.2
+```
 
+
+## Sample output
+you can also use `./armadactl` if it is built & with env variables to point to local
 
 ### watch queue status
 ```bash
