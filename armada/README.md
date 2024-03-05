@@ -42,7 +42,7 @@ go run cmd/armadactl/main.go submit ./docs/quickstart/job-queue-b.yaml
 #check logs of armada in another terminal
 docker compose logs -f
 ```
-input files 
+input files. [more info on this yaml configuration](https://github.com/armadaproject/armada/blob/master/docs/user.md)
 ```yaml
 # cat ./docs/quickstart/queue-a.yaml 
 apiVersion: armadaproject.io/v1beta1
