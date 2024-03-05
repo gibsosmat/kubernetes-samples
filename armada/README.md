@@ -26,6 +26,11 @@ cd armada
 mage localdev full
 ```
 
+To stop server and cluster use
+```bash
+mage localdevstop
+```
+
 ## Execution
 following commands will
 - create job queues
@@ -151,7 +156,9 @@ export ARMADA_EXECUTOR_INGRESS_PORT=5001
 go run cmd/testsuite/main.go test --tests "testsuite/testcases/basic/*" --junit junit.xml
 ```
 
-UI is being changed to v2 there would be issues, run: 
+### Starting UI
+UI needs to be started separately from the main command, be sure to run `mage localdev full` before it.
+UI is being changed to v2 there would be issues
 
 ```bash
 mage ui
