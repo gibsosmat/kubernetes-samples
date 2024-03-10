@@ -31,14 +31,8 @@ func submitJobFile(path string, dryRun bool) error {
 	}
 	fmt.Println("submitFile:  ", submitFile)
 
-	// func CreateQueue(submitClient api.SubmitClient, queue *api.Queue) error {
-	// 	ctx, cancel := common.ContextWithDefaultTimeout()
-	// 	defer cancel()
-	// 	_, e := submitClient.CreateQueue(ctx, queue)
-
-	// 	return e
-	// }
-	// client.CreateQueue()
+	// TODO use client.GetQueue to validate and fail
+	// or use client.CreateQueue() when it fails
 	requests := client.CreateChunkedSubmitRequests(submitFile.Queue, submitFile.JobSetId, submitFile.Jobs)
 
 	connectionDetails := &client.ApiConnectionDetails{
@@ -70,16 +64,6 @@ func submitJobFile(path string, dryRun bool) error {
 		}
 		return nil
 	})
-}
-
-func main2() {
-	fmt.Println("Started main")
-	// TODO create queue before sending message
-	e := submitJobFile("job-queue-a.yaml", false)
-	if e != nil {
-		fmt.Println("Error Occured")
-		fmt.Println(e)
-	}
 }
 
 func submitJobHandler(w http.ResponseWriter, req *http.Request) {
