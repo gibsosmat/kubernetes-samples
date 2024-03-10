@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/pkg/errors"
@@ -13,7 +14,7 @@ import (
 	"github.com/armadaproject/armada/pkg/client/validation"
 )
 
-func Submit(path string, dryRun bool) error {
+func submitJobFile(path string, dryRun bool) error {
 	ok, err := validation.ValidateSubmitFile(path)
 	if !ok {
 		return err
@@ -37,7 +38,7 @@ func Submit(path string, dryRun bool) error {
 
 	// 	return e
 	// }
-	client.CreateQueue()
+	// client.CreateQueue()
 	requests := client.CreateChunkedSubmitRequests(submitFile.Queue, submitFile.JobSetId, submitFile.Jobs)
 
 	connectionDetails := &client.ApiConnectionDetails{
@@ -71,12 +72,30 @@ func Submit(path string, dryRun bool) error {
 	})
 }
 
-func main() {
+func main2() {
 	fmt.Println("Started main")
 	// TODO create queue before sending message
-	e := Submit("job-queue-a.yaml", false)
+	e := submitJobFile("job-queue-a.yaml", false)
 	if e != nil {
-		fmt.Println("some error unravel")
+		fmt.Println("Error Occured")
 		fmt.Println(e)
 	}
+}
+
+func submitJobHandler(w http.ResponseWriter, req *http.Request) {
+	e := submitJobFile("job-queue-a.yaml", false)
+	if e != nil {
+		fmt.Println("Error Occured")
+		fmt.Println(e)
+		fmt.Fprintf(w, "Error occured: %v\n", e)
+
+	} else {
+		fmt.Fprintf(w, "Successfully Submitted Job")
+	}
+
+}
+
+func main() {
+	http.HandleFunc("/submit-job", submitJobHandler)
+	http.ListenAndServe(":8090", nil)
 }
